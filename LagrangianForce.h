@@ -79,7 +79,8 @@ public:
   a(a_input),dX(dX_input),cons_model(cons_input){constrained_nodes.resize(0);}
 
   T F(const TVect& x,const int e)const{
-    return (x(e+1)-x(e))/dX;
+	  if (e==0) {return x(1)/dX;} // Dirichlet BC
+	  else {return (x(e+1)-x(e))/dX;}
   }
 
   T PotentialEnergy(const TVect& x){
@@ -90,11 +91,14 @@ public:
   }
 
   void AddForce(TVect& force,const TVect& x,T scale=(T)1){
-    for(int e=0;e<N-1;e++){
+   T tb=(T)0;	// Neumann BC
+   for(int e=0;e<N-1;e++){
       T P;cons_model.P(P,F(x,e));
       force(e)+=scale*P;
       force(e+1)-=scale*P;
     }
+   // force(0)=0;
+    force(N-1)+=scale*tb;
   }
 
   void AddForceDerivative(SymmetricTridiagonal<T>& A,const TVect& x,T scale){
@@ -107,6 +111,8 @@ public:
         for(int j=i;j<2;j++){
           A(e+i,e+j)+=element_stiffness(i,j);}}
     }
+   // A(0,0) = 0;
+   // A(0,1) = 0;
   }
 
   void AddForceDifferential(TVect& result,const TVect& x,const TVect& dx,T scale){

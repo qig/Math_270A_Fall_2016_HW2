@@ -30,6 +30,7 @@ void ElasticitySimulation(){
 
   JIXIE::ElasticityParameters<T> parameters;
   parameters.N=20;
+  parameters.Nm1 = parameters.N-1;
   parameters.a=(T)0;
   T b=(T)1;
   parameters.dX=(b-parameters.a)/(T)(parameters.N-1);
