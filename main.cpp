@@ -15,7 +15,7 @@ void EnergyTest(){
   JIXIE::LinearElasticity<T> le((T)1);
   JIXIE::FEMHyperelasticity<T> fem(a,dX,N,nh);
   TVect x(N);
-  for(int i=0;i<N;i++) x(i)=a+dX*(T)i;
+  for(int i=0;i<N;i++) x(i)=(T).7*(a+dX*(T)i);
 
   JIXIE::EnergyTest<T> et("output",fem,10);
   et.RefinementTest(x);
@@ -23,14 +23,26 @@ void EnergyTest(){
 }
 
 void ElasticitySimulation(){
+
+
   typedef double T;
   typedef Eigen::Matrix<T,Eigen::Dynamic,1> TVect;
-  int N=5;
-  T a=(T)0,b=(T)1;
-  T dX=(b-a)/(T)(N-1);
-  T dt=(T).01;
-  std::string output_dir("output");
-  JIXIE::ElasticityDriver<T> driver((T)5,30,dt,N,a,dX,output_dir);
+
+  JIXIE::ElasticityParameters<T> parameters;
+  parameters.N=20;
+  parameters.Nm1 = parameters.N-1;
+  parameters.a=(T)0;
+  T b=(T)1;
+  parameters.dX=(b-parameters.a)/(T)(parameters.N-1);
+  parameters.dt=(T).01;
+  parameters.output_dir=std::string("output");
+  parameters.rho=(T)1;
+  parameters.k=(T)1;
+  parameters.Newton_tol=(T)1e-8;
+  parameters.max_newton_it=40;
+  parameters.final_time=(T)4;
+  parameters.frames_per_second=120;
+  JIXIE::ElasticityDriver<T> driver(parameters);
   bool verbose=true;
   driver.RunSimulation(verbose);
 }
