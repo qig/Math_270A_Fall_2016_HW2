@@ -79,7 +79,8 @@ public:
   a(a_input),dX(dX_input),cons_model(cons_input){constrained_nodes.resize(0);}
 
   T F(const TVect& x,const int e)const{
-	  if (e==0) {return x(1)/dX;} // Dirichlet BC
+	  //std::cout << "*******" << x(1) - x(0) << "*******" << std::endl;
+	  if (e==0) {return (x(1))/dX;} // Dirichlet BC
 	  else {return (x(e+1)-x(e))/dX;}
   }
 
@@ -97,12 +98,12 @@ public:
       force(e)+=scale*P;
       force(e+1)-=scale*P;
     }
-   // force(0)=0;
+    force(0)=0;
     force(N-1)+=scale*tb;
   }
 
   void AddForceDerivative(SymmetricTridiagonal<T>& A,const TVect& x,T scale){
-    for(int e=0;e<N-1;e++){
+    for(int e=1;e<N-1;e++){
       T dPdF;cons_model.dPdF(dPdF,F(x,e));
       TMat2 element_stiffness;
       T entry=scale*dPdF/dX;
@@ -111,8 +112,6 @@ public:
         for(int j=i;j<2;j++){
           A(e+i,e+j)+=element_stiffness(i,j);}}
     }
-   // A(0,0) = 0;
-   // A(0,1) = 0;
   }
 
   void AddForceDifferential(TVect& result,const TVect& x,const TVect& dx,T scale){
@@ -127,6 +126,8 @@ public:
         for(int j=i;j<2;j++){
           dfdx(e+i,e+j)+=element_stiffness(i,j);}}
     }
+    dfdx(0,0)=0;
+    dfdx(0,1)=0;
     TVect df(N);df=TVect::Zero(N);
     dfdx.Multiply(dx,df);
     result+=scale*df;
