@@ -103,7 +103,7 @@ public:
   }
 
   void AddForceDerivative(SymmetricTridiagonal<T>& A,const TVect& x,T scale){
-    for(int e=1;e<N-1;e++){
+    for(int e=0;e<N-1;e++){
       T dPdF;cons_model.dPdF(dPdF,F(x,e));
       TMat2 element_stiffness;
       T entry=scale*dPdF/dX;
@@ -112,6 +112,8 @@ public:
         for(int j=i;j<2;j++){
           A(e+i,e+j)+=element_stiffness(i,j);}}
     }
+    A(0,0)=0;
+    A(0,1)=0;
   }
 
   void AddForceDifferential(TVect& result,const TVect& x,const TVect& dx,T scale){
